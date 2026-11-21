@@ -1160,6 +1160,169 @@
             color: var(--tan)
         }
 
+        /* reviews carousel: wide landscape card, horizontal slide */
+        .rev-stage {
+            position: relative;
+            max-width: 920px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: var(--r)
+        }
+
+        .rev-slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 26px;
+            margin: 0;
+            padding: 32px 38px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            box-shadow: var(--sh);
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(56px);
+            transition: transform .6s ease, opacity .6s ease, visibility 0s linear .6s
+        }
+
+        .rev-stage.dir-b .rev-slide {
+            transform: translateX(-56px)
+        }
+
+        .rev-slide.on {
+            position: relative;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            z-index: 2;
+            transition: transform .6s ease, opacity .6s ease, visibility 0s
+        }
+
+        .rev-slide.leaving {
+            opacity: 0;
+            visibility: visible;
+            transform: translateX(-56px);
+            transition: transform .6s ease, opacity .6s ease, visibility 0s linear .6s
+        }
+
+        .rev-stage.dir-b .rev-slide.leaving {
+            transform: translateX(56px)
+        }
+
+        .rev-slide .rq {
+            flex: 0 0 auto;
+            font-family: var(--serif);
+            font-size: 5rem;
+            line-height: .75;
+            color: var(--gold);
+            user-select: none
+        }
+
+        .rev-slide .rev-body {
+            flex: 1;
+            min-width: 0
+        }
+
+        .rev-slide blockquote {
+            margin: 0 0 14px;
+            font-size: 1.08rem;
+            line-height: 1.6;
+            font-style: italic;
+            color: rgba(236, 232, 223, .88)
+        }
+
+        .rev-slide .rev-stars {
+            color: var(--gold);
+            letter-spacing: 3px;
+            margin-bottom: 10px
+        }
+
+        .rev-slide figcaption {
+            font-size: .92rem;
+            font-weight: 700;
+            color: var(--tan)
+        }
+
+        .rev-slide.empty p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(236, 232, 223, .75)
+        }
+
+        .rev-ctl {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 24px
+        }
+
+        .rev-ctl>button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            background: var(--panel);
+            color: var(--ink);
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: var(--sh)
+        }
+
+        .rev-ctl>button:hover {
+            border-color: var(--gold);
+            color: var(--gold)
+        }
+
+        .rev-dots {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .rev-dots button {
+            width: 9px;
+            height: 9px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(236, 232, 223, .35);
+            cursor: pointer
+        }
+
+        .rev-dots button.on {
+            background: var(--gold);
+            transform: scale(1.35)
+        }
+
+        @media(max-width:640px) {
+            .rev-slide {
+                gap: 14px;
+                padding: 22px 20px
+            }
+
+            .rev-slide .rq {
+                font-size: 3.2rem
+            }
+
+            .rev-slide blockquote {
+                font-size: 1rem
+            }
+        }
+
+        @media(prefers-reduced-motion: reduce) {
+            .rev-slide,
+            .rev-slide.on,
+            .rev-slide.leaving {
+                transition: none
+            }
+        }
+
         .rev-form {
             max-width: 640px;
             margin: 40px auto 0;
@@ -3937,7 +4100,7 @@
     </div>
     <div id="toast" role="status"></div>
     <script>
-        var APP_VERSION = "17.0.0";
+        var APP_VERSION = "17.1.0";
         ! function() {
             try {
                 var A = "kelza_app_version";
@@ -4985,13 +5148,13 @@
                     dots = t("#revDots");
                 clearInterval(kzRT);
                 if (!list.length) {
-                    st.innerHTML = '<figure class="rev-slide on empty"><span class="rq" aria-hidden="true">\u201c</span><blockquote>No reviews yet</blockquote><p>Reviews from our dealers appear here once the owner has approved them. Be the first \u2014 share yours below.</p></figure>';
+                    st.innerHTML = '<figure class="rev-slide on empty"><span class="rq" aria-hidden="true">\u201c</span><div class="rev-body"><blockquote>No reviews yet</blockquote><p>Reviews from our dealers appear here once the owner has approved them. Be the first \u2014 share yours below.</p></div></figure>';
                     ctl && (ctl.hidden = !0);
                     return
                 }
                 kzRI = Math.min(kzRI, list.length - 1);
                 st.innerHTML = list.map(function(r, k) {
-                    return '<figure class="rev-slide' + (k === kzRI ? " on" : "") + '"><span class="rq" aria-hidden="true">\u201c</span><blockquote>' + a(r.text) + '</blockquote><div class="rev-stars" aria-label="' + (r.stars || 5) + ' out of 5 stars">' + new Array((r.stars || 5) + 1).join("\u2605") + "</div><figcaption>\u2014 " + a(r.name) + "</figcaption></figure>"
+                    return '<figure class="rev-slide' + (k === kzRI ? " on" : "") + '"><span class="rq" aria-hidden="true">\u201c</span><div class="rev-body"><blockquote>' + a(r.text) + '</blockquote><div class="rev-stars" aria-label="' + (r.stars || 5) + ' out of 5 stars">' + new Array((r.stars || 5) + 1).join("\u2605") + "</div><figcaption>\u2014 " + a(r.name) + "</figcaption></div></figure>"
                 }).join("");
                 ctl && (ctl.hidden = list.length < 2);
                 dots && (dots.innerHTML = list.map(function(r, k) {
@@ -5000,9 +5163,23 @@
                 var go = function(n) {
                     var sl = i(".rev-slide", st),
                         ds = i("button", dots);
-                    kzRI = (n + sl.length) % sl.length, sl.forEach(function(s, k) {
-                        s.classList.toggle("on", k === kzRI)
-                    }), ds.forEach(function(s, k) {
+                    if (!sl.length) return;
+                    var old = kzRI,
+                        ni = (n + sl.length) % sl.length;
+                    if (ni === old) return;
+                    var fwd = ni === (old + 1) % sl.length || (ni > old && !(old === 0 && ni === sl.length - 1));
+                    st.classList.toggle("dir-b", !fwd);
+                    var oldEl = sl[old];
+                    clearTimeout(kzLeaveT);
+                    oldEl.classList.add("leaving");
+                    oldEl.classList.remove("on");
+                    void oldEl.offsetWidth;
+                    kzRI = ni;
+                    sl[ni].classList.add("on");
+                    kzLeaveT = setTimeout(function() {
+                        oldEl.classList.remove("leaving")
+                    }, 650);
+                    ds.forEach(function(s, k) {
                         s.classList.toggle("on", k === kzRI)
                     })
                 };
@@ -5372,7 +5549,8 @@
                 kzSingle = A.singleAppearance || [],
                 kzFLP = {},
                 kzRI = 0,
-                kzRT = null;
+                kzRT = null,
+                kzLeaveT = null;
 
             function kzListedBase() {
                 return p().filter(function(x) {
