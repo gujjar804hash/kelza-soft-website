@@ -1265,6 +1265,7 @@
         .rev-ctl>button {
             width: 44px;
             height: 44px;
+            flex: none;
             border-radius: 50%;
             border: 1.5px solid var(--line);
             background: var(--panel);
@@ -1283,6 +1284,10 @@
         .rev-dots {
             display: flex;
             align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
             gap: 8px
         }
 
@@ -1301,7 +1306,56 @@
             transform: scale(1.35)
         }
 
+        .about-logo img {
+            height: auto
+        }
+
+        .flow-steps {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 22px
+        }
+
+        .fs {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            column-gap: 14px;
+            row-gap: 4px;
+            align-items: start
+        }
+
+        .fs-dot {
+            grid-row: 1/span 3;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font: 800 1.15rem var(--sans)
+        }
+
+        .fs h3,
+        .fs p {
+            margin: 0;
+            grid-column: 2
+        }
+
         @media(max-width:640px) {
+            .about-logo {
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto
+            }
+
+            .about-logo img {
+                width: 100%
+            }
+
             .rev-slide {
                 gap: 14px;
                 padding: 22px 20px
@@ -1313,6 +1367,25 @@
 
             .rev-slide blockquote {
                 font-size: 1rem
+            }
+
+            .rev-ctl {
+                gap: 12px
+            }
+
+            .rev-ctl>button {
+                width: 40px;
+                height: 40px
+            }
+
+            .rev-dots {
+                gap: 5px
+            }
+
+            .rev-dots button {
+                width: 7px;
+                height: 7px;
+                flex: none
             }
         }
 
@@ -1655,7 +1728,7 @@
         .fab {
             position: fixed;
             right: 18px;
-            bottom: 18px;
+            bottom: 84px;
             z-index: 80;
             width: 60px;
             height: 60px;
@@ -1917,7 +1990,7 @@
         .chat-fab {
             position: fixed;
             right: 18px;
-            bottom: 92px;
+            bottom: 158px;
             z-index: 80;
             width: 60px;
             height: 60px;
@@ -1938,9 +2011,9 @@
         .chat {
             position: fixed;
             right: 18px;
-            bottom: 158px;
+            bottom: 226px;
             z-index: 85;
-            width: min(380px, calc(100vw - 32px)); max-height: min(600px, calc(100vh - 230px));
+            width: min(380px, calc(100vw - 32px)); max-height: min(600px, calc(100vh - 300px));
             background: var(--panel);
             border: 1px solid var(--line);
             border-radius: 20px;
@@ -2235,12 +2308,12 @@
             }
 
             .fab {
-                bottom: 16px;
+                bottom: 82px;
                 right: 16px
             }
 
             .chat-fab {
-                bottom: 88px
+                bottom: 156px
             }
         }
 
@@ -4101,7 +4174,7 @@
     </div>
     <div id="toast" role="status"></div>
     <script>
-        var APP_VERSION = "17.2.0";
+        var APP_VERSION = "17.3.0";
         ! function() {
             try {
                 var A = "kelza_app_version";
@@ -5952,7 +6025,7 @@ function kzNavSpy() {
                             return A + (L[e.a] || 1)
                         }, 0),
                         o = t("#enqSummary");
-                    o && (o.textContent = e.length ? e.length + (1 === e.length ? " article" : " articles") + " · " + l + " pairs total · Wholesale rate on request" : "");
+                    o && (o.textContent = e.length ? e.length + (1 === e.length ? " article" : " articles") + " · " + l + (1 === l ? " pair total · Wholesale rate on request" : " pairs total · Wholesale rate on request") : "");
                     var r = t("#enqFabN");
                     r && (r.textContent = e.length);
                     var s = t("#enqFab");
