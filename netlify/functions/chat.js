@@ -7,11 +7,12 @@
 //
 // The frontend sends { messages: [{ role: "user"|"assistant", content }] }
 // (it also accepts a single { message: "..." }) and expects { reply: "..." }.
-// Use gemini-2.5-flash: gemini-2.0-flash was retired by Google (404), and
-// gemini-3.8-flash answered 503 "high demand" on 22 Nov — 2.5-flash is the
-// stable flash model with spare capacity. Model: gemini-2.5-flash on the v1beta API. No build step, no dependencies.
+// Use gemini-3.8-flash — Google's current model. gemini-2.0-flash was retired
+// (404) and gemini-2.5-flash is "no longer available to new users" (404).
+// 3.8-flash answered 503 "high demand" on 22 Nov ~15:49-15:52 — a temporary
+// capacity spike; it starts working once Google's load drops. Model: gemini-3.8-flash on the v1beta API. No build step, no dependencies.
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3.8-flash";
 const API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/" +
   MODEL +
