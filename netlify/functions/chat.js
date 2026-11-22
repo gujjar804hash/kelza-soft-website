@@ -91,6 +91,15 @@ exports.handler = async (event) => {
     });
 
     if (!res.ok) {
+      // Log the upstream status + message server-side only (never the URL,
+      // which carries the key). The public 502 body stays unchanged.
+      let detail = "";
+      try {
+        detail = await res.text();
+      } catch (e) {
+        detail = "";
+      }
+      console.error("KELZA chat upstream error:", res.status, detail.slice(0, 500));
       return json(502, { error: "ai_upstream", fallback: true });
     }
     const data = await res.json();
@@ -105,6 +114,7 @@ exports.handler = async (event) => {
     }
     return json(200, { reply: answer, answer });
   } catch (e) {
+    console.error("KELZA chat failed:", String(e && e.message ? e.message : e).slice(0, 300));
     return json(502, { error: "ai_failed", fallback: true });
   }
 };
