@@ -1823,6 +1823,71 @@
             flex: none
         }
 
+        .terms-list {
+            list-style: none;
+            margin: 0 auto;
+            padding: 0;
+            max-width: 820px;
+            display: grid;
+            gap: 14px;
+            counter-reset: terms
+        }
+
+        .terms-list li {
+            counter-increment: terms;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            padding: 20px 22px;
+            text-align: left
+        }
+
+        .terms-list li::before {
+            content: counter(terms);
+            flex: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: var(--choc);
+            font: 800 1.15rem var(--serif);
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .terms-list h3 {
+            font-size: 1.08rem;
+            margin: 0 0 4px
+        }
+
+        .terms-list p {
+            margin: 0;
+            color: rgba(236, 232, 223, .78);
+            font-size: .98rem;
+            line-height: 1.55
+        }
+
+        .terms-list a {
+            color: var(--gold)
+        }
+
+        @media (max-width: 600px) {
+            .terms-list li {
+                padding: 16px;
+                gap: 12px
+            }
+
+            .terms-list li::before {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem
+            }
+        }
+
         footer {
             background: var(--choc);
             color: var(--ink);
@@ -4133,6 +4198,20 @@
                     </div>
                 </div>
             </section>
+            <section class="sec kz-sec alt kz-terms" id="terms" aria-labelledby="terms-h">
+                <div class="wrap">
+                    <div class="sec-h"><h2 id="terms-h">Wholesale Terms</h2><p>Wholesale dealing, kept simple and clear.</p></div>
+                    <ol class="terms-list">
+                        <li><div><h3>Wholesale only</h3><p>KELZA SOFT supplies premium Men’s Rexine Slippers to dealers and retailers only (B2B). We do not sell retail.</p></div></li>
+                        <li><div><h3>Range</h3><p>17 articles, each available in Brown and Black.</p></div></li>
+                        <li><div><h3>How to order</h3><p>Pick articles on the Order page, fill in the enquiry form (name, phone, email, colour per article; shop name optional), then confirm. A printable Order Slip is made — it shows no amounts — and a short summary goes to WhatsApp at +92 306 4768568.</p></div></li>
+                        <li><div><h3>Rates &amp; minimum order</h3><p>Wholesale rates and the minimum order are confirmed on WhatsApp for each order.</p></div></li>
+                        <li><div><h3>Payment &amp; delivery</h3><p>Payment and delivery or pickup are confirmed on WhatsApp for each order. No advance payment is taken on this website.</p></div></li>
+                        <li><div><h3>Reviews</h3><p>Reviews submitted on this site are sent for approval before they appear publicly.</p></div></li>
+                        <li><div><h3>Contact</h3><p>WhatsApp +92 306 4768568 (orders), 0303-4052546 (calls only), kelzasoft@gmail.com. Factory: Taragarh, Shahdara Town, Lahore.</p></div></li>
+                    </ol>
+                </div>
+            </section>
     </main>
 <footer>
         <div class="wrap">
@@ -4152,6 +4231,7 @@
                         <li><a href="#order">Order</a></li>
                         <li><a href="#reviews">Reviews</a></li>
                         <li><a href="#contact">Contact</a></li>
+                        <li><a href="#terms">Terms</a></li>
                     </ul>
                 </div>
                 <div>
@@ -4175,7 +4255,7 @@
     </div>
     <div id="toast" role="status"></div>
     <script>
-        var APP_VERSION = "17.3.2";
+        var APP_VERSION = "17.4.0";
         ! function() {
             try {
                 var A = "kelza_app_version";
