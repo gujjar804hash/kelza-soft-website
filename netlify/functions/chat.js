@@ -8,18 +8,18 @@
 // The frontend sends { messages: [{ role: "user"|"assistant", content }] }
 // (it also accepts a single { message: "..." }) and expects { reply: "..." }.
 //
-// MODEL CHAIN — try each model in order until one answers; a 503/404/timeout
-// on one model moves to the next, so one overloaded or retired model can no
-// longer kill the chatbot. Verified 22 Nov via models.list (65 models):
-// gemini-2.0-flash is GONE from the list entirely (retired); gemini-2.5-flash
-// is listed but generateContent 404s ("no longer available to new users").
-// Order matters: gemini-3.6-flash is FIRST because it answered live at 16:42
-// while 3.8-flash timed out 3+ times and 3.7-flash 503'd the same hour.
-// Per-attempt timeout is 2.5 s — models that answer do so in ~2 s, so a slow
-// model is cut off quickly and the chain reaches deeper models. The chain
-// runs inside a 9 s total budget (Netlify's own function limit is ~10 s).
-// If every model fails, the 502 makes the frontend fall back to its built-in
-// assistant. Model: v1beta API. No build step, no dependencies.
+// MODEL RACE — all 5 models are called IN PARALLEL and the first one to
+// answer wins. Google's free tier is heavily overloaded on 22 Nov: even the
+// best model times out on some calls, but rarely all five at once, so racing
+// beats trying them one by one (sequential tries burned the whole 9 s budget
+// on two slow models and never reached the rest). Verified 22 Nov via
+// models.list (65 models): gemini-2.0-flash is GONE (retired); gemini-2.5-flash
+// is listed but generateContent 404s ("no longer available to new users");
+// 3.6-flash answered live at 16:42, 3.5-flash at 16:45, while 3.8/3.7-flash
+// mostly 503/timeout the same hour. Everything runs inside a 9 s total
+// budget (Netlify's own function limit is ~10 s). If every model fails, the
+// 502 makes the frontend fall back to its built-in assistant. Model: v1beta
+// API. No build step, no dependencies.
 
 const MODELS = [
   "gemini-3.6-flash",
@@ -106,22 +106,22 @@ exports.handler = async (event) => {
       contents: turns,
       generationConfig: { temperature: 0.4, maxOutputTokens: 350 },
     });
-    const start = Date.now();
 
-    for (const model of MODELS) {
-      const remaining = TOTAL_BUDGET_MS - (Date.now() - start);
-      if (remaining < 1200) break;
-      const attemptTimeout = Math.min(2500, remaining);
+    // Race all models in parallel; the first real answer wins. One shared
+    // deadline aborts the stragglers. Each failure is logged server-side
+    // (never the URL, which carries the key).
+    const controller = new AbortController();
+    const deadline = setTimeout(() => controller.abort(), TOTAL_BUDGET_MS);
+
+    async function tryModel(model) {
       try {
         const res = await fetch(apiUrl(model) + "?key=" + encodeURIComponent(key), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: payload,
-          signal: AbortSignal.timeout(attemptTimeout),
+          signal: controller.signal,
         });
         if (!res.ok) {
-          // Log the model + upstream status + message server-side only
-          // (never the URL, which carries the key), then try the next model.
           let detail = "";
           try {
             detail = await res.text();
@@ -129,7 +129,7 @@ exports.handler = async (event) => {
             detail = "";
           }
           console.error("KELZA chat upstream error:", model, res.status, detail.slice(0, 500));
-          continue;
+          throw new Error("upstream " + res.status);
         }
         const data = await res.json();
         const answer = ((data.candidates || [])[0] || {}).content
@@ -140,16 +140,27 @@ exports.handler = async (event) => {
           : "";
         if (!answer) {
           console.error("KELZA chat empty answer:", model);
-          continue;
+          throw new Error("empty");
         }
-        console.log("KELZA chat answered via:", model);
-        return json(200, { reply: answer, answer });
+        return { model, answer };
       } catch (e) {
-        console.error("KELZA chat failed:", model, String(e && e.message ? e.message : e).slice(0, 300));
-        continue;
+        if (String(e && e.name) !== "AbortError") {
+          console.error("KELZA chat failed:", model, String(e && e.message ? e.message : e).slice(0, 300));
+        }
+        throw e;
       }
     }
-    return json(502, { error: "ai_upstream", fallback: true });
+
+    try {
+      const winner = await Promise.any(MODELS.map(tryModel));
+      clearTimeout(deadline);
+      controller.abort();
+      console.log("KELZA chat answered via:", winner.model);
+      return json(200, { reply: winner.answer, answer: winner.answer });
+    } catch (e) {
+      clearTimeout(deadline);
+      return json(502, { error: "ai_upstream", fallback: true });
+    }
   } catch (e) {
     console.error("KELZA chat failed:", String(e && e.message ? e.message : e).slice(0, 300));
     return json(502, { error: "ai_failed", fallback: true });
