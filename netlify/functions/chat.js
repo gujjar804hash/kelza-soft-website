@@ -7,9 +7,9 @@
 //
 // The frontend sends { messages: [{ role: "user"|"assistant", content }] }
 // (it also accepts a single { message: "..." }) and expects { reply: "..." }.
-// Model: gemini-2.0-flash on the v1beta API. No build step, no dependencies.
+// Model: gemini-3.8-flash on the v1beta API. No build step, no dependencies.
 
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-3.8-flash";
 const API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/" +
   MODEL +
