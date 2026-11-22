@@ -2066,6 +2066,7 @@
 
         .msg.bot {
             background: var(--cream);
+            color: var(--choc);
             justify-self: start
         }
 
@@ -4174,7 +4175,7 @@
     </div>
     <div id="toast" role="status"></div>
     <script>
-        var APP_VERSION = "17.3.0";
+        var APP_VERSION = "17.3.2";
         ! function() {
             try {
                 var A = "kelza_app_version";
@@ -5331,7 +5332,18 @@
             }
 
             function kzFmt(x) {
-                var h = a(x).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+                // Built-in replies already contain safe markup (<br>, <b>, WhatsApp/map links).
+                // Keep those tags intact; escape + linkify only the plain-text parts, so a
+                // URL inside an existing href is never linkified a second time.
+                var h = String(null == x ? "" : x).split(/(<br\s*\/?>|<b>.*?<\/b>|<a\b[^>]*>.*?<\/a>)/gi).map(function(p) {
+                    if (/^<br\s*\/?>$/i.test(p) || /^<b>.*<\/b>$/i.test(p)) return p;
+                    if (/^<a\b/i.test(p)) {
+                        var m = p.match(/href="([^"]*)"/i);
+                        if (m && /^https:\/\/(wa\.me\/|maps\.app\.goo\.gl\/)/.test(m[1])) return p;
+                        return a(p)
+                    }
+                    return a(p).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+                }).join("");
                 return h.replace(/\n/g, "<br>")
             }
 
