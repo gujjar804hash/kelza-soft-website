@@ -12,17 +12,19 @@
 // on one model moves to the next, so one overloaded or retired model can no
 // longer kill the chatbot. Verified 22 Nov via models.list (65 models):
 // gemini-2.0-flash is GONE from the list entirely (retired); gemini-2.5-flash
-// is listed but generateContent 404s ("no longer available to new users");
-// gemini-3.8-flash answers 503 "high demand" / timeouts when Google is
-// overloaded (22 Nov 15:49-16:32). The chain runs inside a 9 s total budget
-// (Netlify's own function limit is ~10 s), so a slow model cannot eat the
-// whole budget. If every model fails, the 502 makes the frontend fall back
-// to its built-in assistant. Model: v1beta API. No build step, no dependencies.
+// is listed but generateContent 404s ("no longer available to new users").
+// Order matters: gemini-3.6-flash is FIRST because it answered live at 16:42
+// while 3.8-flash timed out 3+ times and 3.7-flash 503'd the same hour.
+// Per-attempt timeout is 2.5 s — models that answer do so in ~2 s, so a slow
+// model is cut off quickly and the chain reaches deeper models. The chain
+// runs inside a 9 s total budget (Netlify's own function limit is ~10 s).
+// If every model fails, the 502 makes the frontend fall back to its built-in
+// assistant. Model: v1beta API. No build step, no dependencies.
 
 const MODELS = [
+  "gemini-3.6-flash",
   "gemini-3.8-flash",
   "gemini-3.7-flash",
-  "gemini-3.6-flash",
   "gemini-3.5-flash",
   "gemini-3.1-flash-lite",
 ];
@@ -109,7 +111,7 @@ exports.handler = async (event) => {
     for (const model of MODELS) {
       const remaining = TOTAL_BUDGET_MS - (Date.now() - start);
       if (remaining < 1200) break;
-      const attemptTimeout = Math.min(4000, remaining);
+      const attemptTimeout = Math.min(2500, remaining);
       try {
         const res = await fetch(apiUrl(model) + "?key=" + encodeURIComponent(key), {
           method: "POST",
